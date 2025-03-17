@@ -15,7 +15,7 @@ const BottomBar = ({ productId }) => {
             return;
         }
 
-        const { data, error } = await supabase.from("cart").insert([{ email, product_id: productId, quantity }]).select();
+        const { data, error } = await supabase.from("cart").insert([{ email, productId, quantity }]).select();
         if (error) {
             console.log('Error adding to cart', error.message)
         } else {
@@ -58,11 +58,7 @@ const BottomBar = ({ productId }) => {
                 borderRadius: 5,
                 width: "60%"
             }}
-                onPress={() => {
-                    console.log("Button Pressed - Product ID:", productId);
-                    addToCart("otilomu@gmail.com", productId.id, 1)
-                }
-                }>
+                onPress={() => addToCart("otilomu@gmail.com", productId, 1)} >
                 <Ionicons name="cart-outline" size={30}>
                 </Ionicons>
             </TouchableOpacity>
