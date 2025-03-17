@@ -20,25 +20,6 @@ const ProductDetails = () => {
     console.log("Dummy product IDs:", dummyProducts.map(p => p.id));
     console.log("Matching Product:", product);
 
-    const addToCart = async () => {
-        try {
-            const user = await supabase.auth.getUser(); // Get logged-in user
-            if (!user || !user.data?.user?.email) {
-                alert("Please log in to add items to your cart.");
-                return;
-            }
-
-            const { data, error } = await supabase
-                .from("cart")
-                .insert([{ email: user.data.user.email, productId, quantity: 1 }]);
-
-            if (error) throw error;
-            alert("Added to cart!");
-        } catch (err) {
-            console.error("Error adding to cart:", err);
-        }
-    };
-
     if (!product) {
         return (
             <View style={styles.container}>
@@ -54,8 +35,7 @@ const ProductDetails = () => {
             <Text style={styles.title}>{product.name}</Text>
             <Text style={styles.description}>{product.description}</Text>
             <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-            <Button title="Add to Cart" onPress={addToCart} />
-            <BottomBar />
+            <BottomBar productId={productId} />
         </View>
     );
 };

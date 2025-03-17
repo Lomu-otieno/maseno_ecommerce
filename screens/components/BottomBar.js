@@ -1,27 +1,48 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../../supabase";
 
 const BottomBar = ({ productId }) => {
     const navigation = useNavigation();
-    const addToCart = async (email, productId, quantity) => {
+    const addToCart = async (productId, quantity) => {
         console.log("Adding to cart - Product ID:", productId); // Debugging log
 
-        const { data: { user } } = await supabase.auth.getUser(); // Get logged-in user
-
-        if (!user) {
-            console.error("No authenticated user.");
+        if (!productId) {
+            console.error("Error: Product ID is undefined!");
             return;
         }
 
-        const { data, error } = await supabase.from("cart").insert([{ email, productId, quantity }]).select();
-        if (error) {
-            console.log('Error adding to cart', error.message)
-        } else {
-            console.log("added to cart", data);
+        // Get the logged-in user's email from the session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+            console.error("Error fetching session:", sessionError.message);
+            return;
         }
-    }
+
+        const userEmail = session?.user?.email;
+
+        if (!userEmail) {
+            console.error("No authenticated user or email found.");
+            return;
+        }
+
+        console.log("User Email:", userEmail); // Debugging log
+
+        // Insert item into the cart with the retrieved email
+        const { data, error } = await supabase
+            .from("cart")
+            .insert([{ email: userEmail, productId, quantity }]);
+
+        if (error) {
+            console.error("Error adding to cart:", error.message);
+        } else {
+            console.log("Added to cart:", data);
+        }
+    };
+
+
 
 
     return (
@@ -38,19 +59,16 @@ const BottomBar = ({ productId }) => {
             borderTopWidth: 1,
             borderColor: "#ddd",
         }}>
-            {/* Home Button */}
             <TouchableOpacity onPress={() => navigation.navigate("Home")}>
                 <Ionicons name="home-outline" size={30}>
                 </Ionicons>
 
             </TouchableOpacity>
 
-            {/* Call Button */}
             <TouchableOpacity onPress={() => alert("Call 0790790406")}>
                 <Ionicons name="call-outline" size={30}></Ionicons>
             </TouchableOpacity>
 
-            {/* Add to Cart Button */}
             <TouchableOpacity style={{
                 backgroundColor: "orange",
                 paddingVertical: 10,
@@ -58,11 +76,14 @@ const BottomBar = ({ productId }) => {
                 borderRadius: 5,
                 width: "60%"
             }}
-                onPress={() => addToCart("otilomu@gmail.com", productId, 1)} >
+                onPress={() => {
+                    addToCart(productId, 1)
+                    Alert.alert("Success", "Item added to Cart")
+                }} >
                 <Ionicons name="cart-outline" size={30}>
                 </Ionicons>
             </TouchableOpacity>
-        </View>
+        </View >
     );
 };
 
