@@ -20,6 +20,7 @@ const ProductDetails = () => {
     console.log("Dummy product IDs:", dummyProducts.map(p => p.id));
     console.log("Matching Product:", product);
 
+
     if (!product) {
         return (
             <View style={styles.container}>

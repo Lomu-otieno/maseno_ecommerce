@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Image, StyleSheet } from "react-native";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { supabase } from "../supabase";
+import { useNavigation } from "@react-navigation/native";
+
+
 
 const ProductScreen = () => {
+    const navigation = useNavigation();
     const route = useRoute();
     const { categoryId, categoryName } = route.params;
     const [products, setProducts] = useState([]);
@@ -34,13 +38,15 @@ const ProductScreen = () => {
             {products.length === 0 ? (
                 <Text style={styles.noProducts}>No products found.</Text>
             ) : (
+
                 <FlatList
                     data={products}
                     keyExtractor={(item) => item.id.toString()}
                     numColumns={2} // Set two items per row
                     columnWrapperStyle={styles.row} // Ensures proper spacing
                     renderItem={({ item }) => (
-                        <View style={styles.productCard}>
+
+                        <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { productId: item.id })} style={styles.productCard}>
                             <Image
                                 source={{ uri: item.image_url }}
                                 style={styles.productImage}
@@ -48,7 +54,7 @@ const ProductScreen = () => {
                             />
                             <Text style={styles.productName}>{item.name}</Text>
                             <Text style={styles.productPrice}>${item.price}</Text>
-                        </View>
+                        </TouchableOpacity>
                     )}
                 />
             )}
@@ -63,13 +69,18 @@ const styles = StyleSheet.create({
     row: { justifyContent: "space-between" }, // Ensures spacing between items
     productCard: {
         flex: 1,
-        margin: 5, // Space between items
-        backgroundColor: "#f9f9f9",
+        margin: 5,
+        backgroundColor: "#fff",
         padding: 10,
         borderRadius: 10,
         alignItems: "center",
-        elevation: 2,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
+
     productImage: {
         width: "100%",
         height: 180,

@@ -73,7 +73,7 @@ export default function Profile() {
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError || !sessionData?.session?.user) {
-            console.error('User not found:', sessionError?.message);
+            // console.error('User not found:', sessionError?.message);
             return;
         }
 
@@ -87,21 +87,21 @@ export default function Profile() {
 
         if (!result.canceled) {
             const imgUri = result.assets[0].uri;
-            console.log('📸 Selected Image URI:', imgUri);
+            // console.log('📸 Selected Image URI:', imgUri);
 
             // Test network
             try {
                 const testResponse = await fetch('https://www.google.com');
-                console.log('✅ Network Test Successful:', testResponse.status);
+                // console.log('✅ Network Test Successful:', testResponse.status);
             } catch (error) {
-                console.error('❌ Network error:', error);
+                // console.error('❌ Network error:', error);
                 return;
             }
 
             // Upload the image
             const imageUrl = await uploadImage(imgUri, user.email);
             const response = await fetch(imgUri);
-            console.log('🔍 Fetch response:', response);
+            // console.log('🔍 Fetch response:', response);
 
             if (imageUrl) {
                 setProfilePicture(imageUrl);
@@ -176,7 +176,7 @@ export default function Profile() {
             if (error) throw error;
             navigation.replace("Login"); // Redirect to login screen after logout
         } catch (error) {
-            console.error("Logout Error:", error.message);
+            // console.error("Logout Error:", error.message);
         }
     };
 
@@ -204,7 +204,7 @@ export default function Profile() {
                 {/* User Info Section */}
                 <View style={styles.bioContainer}>
                     <View style={{ justifyContent: 'center', alignItems: "center" }}>
-                        <Text style={styles.bioTitle}>About User</Text>
+                        <Text style={styles.bioTitle}>About</Text>
                     </View>
                     <Text style={styles.bioText}><Text style={styles.label}>Email:</Text> {email}</Text>
                     <Text style={styles.bioText}><Text style={styles.label}>Location:</Text> {location}</Text>
@@ -285,174 +285,142 @@ export default function Profile() {
 const styles = StyleSheet.create({
     backgroundImage: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: "rgba(0, 0, 0, 0.5)", // Dim effect for better readability
     },
     container: {
-        width: '90%',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        borderRadius: 20,
-        padding: 25,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20
+        flex: 1,
+        padding: 20,
+        justifyContent: "center",
+        alignItems: "center",
     },
     profileContainer: {
-        alignItems: 'center',
+        alignItems: "center",
         marginBottom: 20,
     },
     profileWrapper: {
-        position: 'relative',
-        borderRadius: 100,
+        position: "relative",
     },
     profileImage: {
         width: 120,
         height: 120,
         borderRadius: 60,
-        borderWidth: 2,
-        borderColor: '#fff'
+        borderWidth: 3,
+        borderColor: "#fff",
     },
     cameraButton: {
-        position: 'absolute',
-        bottom: 5,
-        right: 5,
-        backgroundColor: '#ff6b6b',
+        position: "absolute",
+        bottom: 0,
+        right: 0,
+        backgroundColor: "#007bff",
+        padding: 8,
         borderRadius: 20,
-        padding: 6
     },
     username: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#fff",
         marginTop: 10,
-        color: '#fff'
     },
     bioContainer: {
-        width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        padding: 20,
-        borderRadius: 15,
-        marginBottom: 20
+        backgroundColor: "#fff",
+        padding: 15,
+        borderRadius: 10,
+        width: "100%",
+        shadowColor: "#000",
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 5,
     },
     bioTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
         marginBottom: 10,
-        color: '#000',
-        textAlign: 'center',
     },
     bioText: {
         fontSize: 16,
-        marginBottom: 8,
-        color: '#fff',
-        textAlign: 'center',
+        color: "#666",
+        marginBottom: 5,
     },
     label: {
-        fontWeight: 'bold',
-        color: '#ffcc00',
-    },
-    buttonWrapper: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '100%',
+        fontWeight: "bold",
+        color: "#222",
     },
     updateView: {
-        width: "50%",
-        backgroundColor: "blue",
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: 10,
+        marginVertical: 10,
     },
     update: {
-        color: "#fff",
         fontSize: 20,
-        paddingVertical: 12,
-        borderRadius: 30,
-        alignItems: 'center',
-        marginHorizontal: 8,
-        width: 150,
+        fontWeight: "bold",
+        color: "#fff",
+        textAlign: "center",
+    },
+    buttonWrapper: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        marginTop: 20,
     },
     button: {
-        flex: 1,
-        marginTop: 25,
-        backgroundColor: '#4a90e2', // Blue color
+        backgroundColor: "#007bff",
         paddingVertical: 12,
-        borderRadius: 30,
-        alignItems: 'center',
-        marginHorizontal: 8,
-    },
-    changePassword: {
-        backgroundColor: '#ff6b6b',
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: "center",
+        flex: 1,
+        marginHorizontal: 5,
     },
     buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    errorText: {
-        color: '#ff6b6b',
-        marginTop: 10,
-        textAlign: 'center',
+        color: "#fff",
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     modalOverlay: {
-        flex: 0.99,
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
-        marginTop: 10,
     },
     modalContainer: {
-        width: '80%',
-        backgroundColor: '#fff',
+        backgroundColor: "#fff",
         padding: 20,
-        borderRadius: 15,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 10, // Android shadow
+        borderRadius: 10,
+        width: "80%",
+        alignItems: "center",
     },
     modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 15,
-        color: '#333',
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
     },
     input: {
         width: "100%",
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc",
-        padding: 8,
-        marginBottom: 20,
-        textAlign: "center",
+        padding: 10,
+        borderColor: "#ccc",
+        borderWidth: 1,
+        borderRadius: 5,
+        marginBottom: 15,
     },
     modalButton: {
-        width: '100%',
-        backgroundColor: '#007AFF',
-        paddingVertical: 12,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginBottom: 10,
+        backgroundColor: "#007bff",
+        padding: 10,
+        borderRadius: 5,
+        width: "100%",
+        alignItems: "center",
     },
     modalButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        color: "#fff",
+        fontWeight: "bold",
     },
     cancelButton: {
         marginTop: 10,
     },
     cancelButtonText: {
-        color: "#ff6b6b'",
-        fontSize: 16,
+        color: "#007bff",
         fontWeight: "bold",
     },
 });
