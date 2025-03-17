@@ -53,7 +53,7 @@ const ProductScreen = () => {
                                 onError={() => console.log("Image failed to load:", item.image_url)}
                             />
                             <Text style={styles.productName}>{item.name}</Text>
-                            <Text style={styles.productPrice}>${item.price}</Text>
+                            <Text style={styles.productPrice}>Kshs. {item.price}</Text>
                         </TouchableOpacity>
                     )}
                 />

@@ -14,7 +14,7 @@ const HomeScreen = () => {
         setLoading(true);
         const { data, error } = await supabase.from('products').select('*');
         if (error) {
-            console.log('Error fetching the products:', error)
+            // console.log('Error fetching the products:', error)
         } else {
             setProducts(data);
             // console.log('fetched data', data);
@@ -63,7 +63,7 @@ const HomeScreen = () => {
                                 <View style={styles.productCard}>
                                     <Image source={{ uri: item.image_url }} style={styles.productImage} />
                                     <Text style={styles.productName}>{item.name}</Text>
-                                    <Text style={styles.productPrice}>${item.price}</Text>
+                                    <Text style={styles.productPrice}>Khs. {item.price}</Text>
                                 </View>
                             </TouchableOpacity>
                         )}

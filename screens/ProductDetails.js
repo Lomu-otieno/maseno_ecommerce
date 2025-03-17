@@ -1,30 +1,58 @@
-import { View, Text, Image, StyleSheet, Button } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, StyleSheet, Button, ActivityIndicator } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BottomBar from "./components/BottomBar";
-import supabase from "../supabase"; // Import your Supabase client
-
-const dummyProducts = [
-    { id: 25, name: "Nike Shoes", price: 49.99, description: "Comfortable running shoes", image_url: "https://i.pinimg.com/236x/64/7c/ad/647cad16ede10f3ac32e84c8f14831e9.jpg" },
-    { id: 26, name: "Samsung TV", price: 599.99, description: "Smart 4K UHD TV", image_url: "https://i.pinimg.com/236x/3c/c5/b1/3cc5b125b70261a93cb9700ae0953f97.jpg" },
-];
+import { supabase } from "../supabase"; // Import your Supabase client
 
 const ProductDetails = () => {
     const route = useRoute();
     const navigation = useNavigation();
     const { productId } = route.params || {}; // Handle missing params
-    const product = dummyProducts.find((p) => p.id === Number(productId));
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    console.log("Received productId:", productId);
-    console.log("Received productId (raw):", route.params?.productId);
-    console.log("Converted productId:", Number(productId));
-    console.log("Dummy product IDs:", dummyProducts.map(p => p.id));
-    console.log("Matching Product:", product);
+    useEffect(() => {
+        if (!productId) {
+            setError("Invalid product ID.");
+            setLoading(false);
+            return;
+        }
 
+        fetchProductDetails();
+    }, [productId]);
 
-    if (!product) {
+    const fetchProductDetails = async () => {
+        try {
+            const { data, error } = await supabase
+                .from("products")
+                .select("id, name, price, description, image_url")
+                .eq("id", productId)
+                .single(); // Fetch a single product
+
+            if (error) throw error;
+
+            setProduct(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
         return (
             <View style={styles.container}>
-                <Text style={styles.errorText}>Product not found</Text>
+                <ActivityIndicator size="large" color="blue" />
+                <Text>Loading product...</Text>
+            </View>
+        );
+    }
+
+    if (error || !product) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.errorText}>{error || "Product not found"}</Text>
                 <Button title="Go Back" onPress={() => navigation.goBack()} />
             </View>
         );
@@ -35,8 +63,8 @@ const ProductDetails = () => {
             <Image source={{ uri: product.image_url }} style={styles.image} />
             <Text style={styles.title}>{product.name}</Text>
             <Text style={styles.description}>{product.description}</Text>
-            <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-            <BottomBar productId={productId} />
+            <Text style={styles.price}>Kshs. {product.price.toFixed(2)}</Text>
+            <BottomBar productId={product.id} />
         </View>
     );
 };

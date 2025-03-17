@@ -12,7 +12,7 @@ const CartScreen = () => {
         const getUserEmail = async () => {
             const { data: { session }, error } = await supabase.auth.getSession();
             if (error) {
-                console.error("Error fetching session:", error.message);
+                // console.error("Error fetching session:", error.message);
                 return;
             }
             if (session?.user) {
@@ -55,13 +55,13 @@ const CartScreen = () => {
             const total = data.reduce((sum, item) => sum + item.quantity * item.products.price, 0);
             setTotalCost(total); // Update state
         } catch (error) {
-            console.error("Error fetching cart items:", error.message);
+            // console.error("Error fetching cart items:", error.message);
         }
     };
     // 🚀 Function to remove item from cart
     const removeFromCart = async (id) => {
         try {
-            console.log("Removing item with ID:", id);
+            // console.log("Removing item with ID:", id);
 
             const { error } = await supabase.from("cart").delete().eq("id", id);
 
@@ -69,16 +69,16 @@ const CartScreen = () => {
 
             // Update state after deletion
             setCartItems(cartItems.filter(item => item.id !== id));
-            console.log("Item removed successfully!");
+            // console.log("Item removed successfully!");
         } catch (error) {
-            console.error("Error removing item:", error.message);
+            // console.error("Error removing item:", error.message);
         }
     };
 
     // 🚀 Function to increase quantity
     const increaseQuantity = async (id, currentQuantity) => {
         try {
-            console.log("Increasing quantity for item ID:", id);
+            // console.log("Increasing quantity for item ID:", id);
 
             const { error } = await supabase
                 .from("cart")
@@ -87,12 +87,12 @@ const CartScreen = () => {
 
             if (error) throw error;
 
-            console.log("Quantity increased successfully!");
+            // console.log("Quantity increased successfully!");
 
             // Refresh cart items
             fetchCartItems();
         } catch (error) {
-            console.error("Error increasing quantity:", error.message);
+            // console.error("Error increasing quantity:", error.message);
         }
     };
     const decreaseQuantity = async (id, currentQuantity) => {

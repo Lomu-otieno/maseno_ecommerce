@@ -19,7 +19,7 @@ const CategoryScreen = () => {
 
             setCategories(data);
         } catch (error) {
-            console.error("Error fetching categories:", error.message);
+            // console.error("Error fetching categories:", error.message);
         } finally {
             setLoading(false);
         }
