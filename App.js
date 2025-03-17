@@ -17,6 +17,7 @@ import Category from "./screens/Category";
 import Profile from "./screens/Profile";
 import UpdateProfile from "./screens/UpdateProfile";
 import ProductDetails from "./screens/ProductDetails";
+import ProductScreen from "./screens/ProductScreen";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
@@ -70,6 +71,7 @@ export default function App() {
           <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="ProductDetails" component={ProductDetails} />
+          <Stack.Screen name="ProductScreen" component={ProductScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

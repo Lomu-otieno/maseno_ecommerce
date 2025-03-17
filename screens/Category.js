@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../supabase";
 
 const CategoryScreen = () => {
+    const navigation = useNavigation();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -35,7 +37,10 @@ const CategoryScreen = () => {
                     numColumns={2}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.categoryCard}>
+                        <TouchableOpacity
+                            style={styles.categoryCard}
+                            onPress={() => navigation.navigate("ProductScreen", { categoryId: item.id, categoryName: item.name })}
+                        >
                             <Image source={{ uri: item.image }} style={styles.categoryImage} />
                             <Text style={styles.categoryName}>{item.name}</Text>
                         </TouchableOpacity>
@@ -49,7 +54,6 @@ const CategoryScreen = () => {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        marginTop: 30,
         backgroundColor: "#fff",
         flex: 1,
     },
@@ -59,6 +63,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: "center",
         color: "#333",
+        padding: 10
     },
     categoryCard: {
         flex: 1,
