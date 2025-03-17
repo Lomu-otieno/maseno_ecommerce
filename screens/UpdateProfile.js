@@ -9,7 +9,6 @@ const UpdateProfile = () => {
     const image = { uri: 'https://images.pexels.com/photos/6169022/pexels-photo-6169022.jpeg?auto=compress&cs=tinysrgb&w=300' }
     //https://i.pinimg.com/236x/ca/7f/e3/ca7fe301cc4e70dfe0f3fe1ae93cc02c.jpg
     //https://i.pinimg.com/236x/2f/32/42/2f3242ec97af6ba316a0de5d5e9ecc83.jpg
-    const [commodities, setCommodities] = useState('');
     const [location, setLocation] = useState('');
     const [contact, setContact] = useState('');
     const [loading, setLoading] = useState(true);
@@ -39,7 +38,7 @@ const UpdateProfile = () => {
         try {
             const { data, error } = await supabase
                 .from('users_details')
-                .select('location, commodities, contact')
+                .select('location,contact')
                 .eq('email', email)
                 .maybeSingle();
 
@@ -47,7 +46,6 @@ const UpdateProfile = () => {
 
             if (data) {
                 setLocation(data.location || '');
-                setCommodities(data.commodities || '');
                 setContact(data.contact || '');
             }
         } catch (error) {
@@ -64,7 +62,7 @@ const UpdateProfile = () => {
             return;
         }
 
-        if (!location || !commodities || !contact) {
+        if (!location || !contact) {
             Alert.alert('Error', 'All fields are required.');
             return;
         }
@@ -73,7 +71,7 @@ const UpdateProfile = () => {
         try {
             const { error } = await supabase
                 .from('users_details')
-                .update({ location, commodities, contact })
+                .update({ location, contact })
                 .eq('email', userEmail);
 
             if (error) throw error;
@@ -105,12 +103,6 @@ const UpdateProfile = () => {
                     placeholder="location (e.g Across, Nyawita, Luanda"
                     value={location}
                     onChangeText={setLocation}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Your goods and commodities (comma separated)"
-                    value={commodities}
-                    onChangeText={setCommodities}
                     style={styles.input}
                 />
 

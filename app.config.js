@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 export default {
     expo: {
-        name: "real",
+        name: "masenOline",
         slug: "https://expo.dev/lomu/msufans",
         version: "1.0.0",
         extra: {

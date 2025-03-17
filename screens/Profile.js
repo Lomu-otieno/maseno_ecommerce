@@ -14,7 +14,6 @@ export default function Profile() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [location, setLocation] = useState('');
-    const [commodities, setCommodities] = useState('');
     const [contact, setContact] = useState('');
     const [profilePicture, setProfilePicture] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -142,13 +141,12 @@ export default function Profile() {
             // Fetch user details excluding profile picture
             const { data, error } = await supabase
                 .from('users_details')
-                .select('location, commodities, contact, profile_picture')
+                .select('location, contact, profile_picture')
                 .eq('email', user.email)
                 .single();
 
             if (data) {
                 setLocation(data.location || "Not specified");
-                setCommodities(data.commodities || "No interests");
                 setContact(data.contact || "No contact info");
             } else if (error) {
                 Alert.alert("Error", error.message);
@@ -210,7 +208,6 @@ export default function Profile() {
                     </View>
                     <Text style={styles.bioText}><Text style={styles.label}>Email:</Text> {email}</Text>
                     <Text style={styles.bioText}><Text style={styles.label}>Location:</Text> {location}</Text>
-                    <Text style={styles.bioText}><Text style={styles.label}>Commodities:</Text> {commodities}</Text>
                     <Text style={styles.bioText}><Text style={styles.label}>Contact:</Text> {contact}</Text>
 
                 </View>
