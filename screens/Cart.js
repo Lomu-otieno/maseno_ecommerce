@@ -9,7 +9,7 @@ const CartScreen = () => {
     const [cartItems, setCartItems] = useState([]);
     const [userEmail, setUserEmail] = useState(null);
     const [totalCost, setTotalCost] = useState(0);
-    const [loading, setLoading] = useState(true); // Loading state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getUserEmail = async () => {
@@ -26,13 +26,26 @@ const CartScreen = () => {
     useEffect(() => {
         if (userEmail) {
             fetchCartItems();
+
+            const channel = supabase
+                .channel("cart-updates")
+                .on("postgres_changes", { event: "*", schema: "public", table: "cart" }, (payload) => {
+                    console.log("Real-time update received:", payload);
+                    fetchCartItems();
+                })
+                .subscribe();
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
         }
     }, [userEmail]);
+
 
     const fetchCartItems = async () => {
         try {
             if (!userEmail) return;
-            setLoading(true); // Start loading
+            setLoading(true);
 
             const { data, error } = await supabase
                 .from("cart")
@@ -52,48 +65,73 @@ const CartScreen = () => {
         } catch (error) {
             console.error("Error fetching cart items:", error.message);
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 
     const removeFromCart = async (id) => {
         try {
-            const { error } = await supabase.from("cart").delete().eq("id", id);
-            if (error) throw error;
-            setCartItems(cartItems.filter(item => item.id !== id));
+            const { data, error } = await supabase.from("cart").delete().eq("id", id).select();
+
+            // Update UI by removing item from state
+            setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+            fetchCartItems();
         } catch (error) {
-            console.error("Error removing item:", error.message);
+            console.error("Unexpected error:", error);
         }
     };
+
 
     const increaseQuantity = async (id, currentQuantity) => {
-        try {
-            const { error } = await supabase
-                .from("cart")
-                .update({ quantity: currentQuantity + 1 })
-                .eq("id", id);
 
-            if (error) throw error;
-            fetchCartItems();
-        } catch (error) {
-            console.error("Error increasing quantity:", error.message);
+        const { data: existingData, error: fetchError } = await supabase
+            .from("cart")
+            .select("*")
+            .eq("id", id)
+            .eq("email", userEmail);
+        if (!existingData || existingData.length === 0) {
+            console.error("Item not found in the database!");
+            return;
         }
+        const newQuantity = existingData[0].quantity + 1;
+
+        const { data, error } = await supabase
+            .from("cart")
+            .update({ quantity: newQuantity })
+            .eq("id", id)
+            .eq("email", userEmail)
+            .neq("quantity", newQuantity) // Force update only if quantity is different
+            .select();
+        fetchCartItems(); // Refresh UI with updated data
     };
+
+
+
+
+
 
     const decreaseQuantity = async (id, currentQuantity) => {
-        if (currentQuantity > 1) {
-            await supabase.from("cart").update({ quantity: currentQuantity - 1 }).eq("id", id);
-            fetchCartItems();
-        } else {
-            removeFromCart(id);
+
+        if (currentQuantity <= 1) {
+            console.log("Quantity is 1, removing item from cart instead.");
+            await removeFromCart(id);
+            return;
         }
+        const { data, error } = await supabase
+            .from("cart")
+            .update({ quantity: currentQuantity - 1 })
+            .eq("id", id)
+            .eq("email", userEmail)
+            .select();
+        fetchCartItems(); // Refresh UI with updated data
+
     };
+
 
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Shopping Cart</Text>
 
-            {/* Show loading spinner when fetching data */}
             {loading ? (
                 <ActivityIndicator size="large" color="#ff6600" style={styles.loader} />
             ) : cartItems.length === 0 ? (

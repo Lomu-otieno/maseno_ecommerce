@@ -44,7 +44,7 @@ const ProductDetails = () => {
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="blue" />
-                <Text>please wait...</Text>
+                <Text>:Loading...</Text>
             </View>
         );
     }

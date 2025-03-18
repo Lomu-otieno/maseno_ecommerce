@@ -32,7 +32,7 @@ const CategoryScreen = () => {
             {loading ? (
                 // <ActivityIndicator size="large" color="#000" />
                 <View style={styles.loaderContainer}>
-                    <Text style={styles.loadingText}> Loading categories...</Text>
+                    <Text style={styles.loadingText}> Loading...</Text>
                 </View>
             ) : (
                 <FlatList

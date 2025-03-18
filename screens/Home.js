@@ -54,7 +54,7 @@ const HomeScreen = () => {
                 {loading ? (
                     <View style={styles.loaderContainer}>
                         <ActivityIndicator size="large" color="#3498db" />
-                        <Text style={styles.loadingText}>Loading products...</Text>
+                        <Text style={styles.loadingText}>Loading...</Text>
                     </View>
                 ) : (
                     <Animated.View style={{ opacity: fadeAnim }}>

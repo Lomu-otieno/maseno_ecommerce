@@ -19,6 +19,8 @@ export default function Profile() {
     const [errorMessage, setErrorMessage] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const [newPassword, setNewPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
 
 
 
@@ -39,7 +41,7 @@ export default function Profile() {
             formData.append('file', { uri: imgUri, name: `upload.${fileExt}`, type: `image/${fileExt}` });
 
             const { data, error } = await supabase.storage
-                .from('profile_pictures')
+                .from('profilepictures')
                 .upload(filePath, formData, {
                     contentType: `image/${fileExt}`,
                     cacheControl: '3600',
@@ -50,7 +52,7 @@ export default function Profile() {
 
             // Get the full public URL
             const { data: imageUrlData } = supabase.storage
-                .from('profile_pictures')
+                .from('profilepictures')
                 .getPublicUrl(filePath);
 
             const imageUrl = imageUrlData.publicUrl;
@@ -129,46 +131,52 @@ export default function Profile() {
 
     useEffect(() => {
         const fetchUserProfile = async () => {
+            setLoading(true); // Start loading
+
             const { data: { user }, error: authError } = await supabase.auth.getUser();
             if (authError || !user) {
                 Alert.alert("Error", "User not authenticated");
+                setLoading(false); // Stop loading in case of an error
                 return;
             }
 
             setUsername(user.user_metadata?.username || "No Username");
             setEmail(user.email || "No Email");
 
-            // Fetch user details excluding profile picture
-            const { data, error } = await supabase
-                .from('users_details')
-                .select('location, contact, profile_picture')
-                .eq('email', user.email)
-                .single();
+            try {
+                // Fetch user details excluding profile picture
+                const { data, error } = await supabase
+                    .from('users_details')
+                    .select('location, contact, profile_picture')
+                    .eq('email', user.email)
+                    .single();
 
-            if (data) {
-                setLocation(data.location || "Not specified");
-                setContact(data.contact || "No contact info");
-            } else if (error) {
+                if (error) throw error;
+
+                setLocation(data?.location || "Not specified");
+                setContact(data?.contact || "No contact info");
+
+                // Fetch the latest profile picture from storage
+                const { data: files, error: storageError } = await supabase
+                    .storage
+                    .from('profilepictures')
+                    .list(user.email + "/", { limit: 1, sortBy: { column: "created_at", order: "desc" } });
+
+                if (!storageError && files && files.length > 0) {
+                    const latestImagePath = user.email + "/" + files[0].name;
+                    const { data: imageUrl } = supabase.storage.from('profile_pictures').getPublicUrl(latestImagePath);
+                    setProfilePicture(imageUrl.publicUrl);
+                }
+            } catch (error) {
                 Alert.alert("Error", error.message);
-            }
-
-            // Fetch the latest profile picture from storage
-            const { data: files, error: storageError } = await supabase
-                .storage
-                .from('profile_pictures')
-                .list(user.email + "/", { limit: 1, sortBy: { column: "created_at", order: "desc" } });
-
-            if (storageError || !files || files.length === 0) {
-                //Alert.alert("Alert", "profile picture required");
-            } else {
-                const latestImagePath = user.email + "/" + files[0].name;
-                const { data: imageUrl } = supabase.storage.from('profile_pictures').getPublicUrl(latestImagePath);
-                setProfilePicture(imageUrl.publicUrl);
+            } finally {
+                setLoading(false); // Ensure loading stops regardless of success or failure
             }
         };
 
         fetchUserProfile();
     }, []);
+
 
     const handleLogout = async () => {
         try {
@@ -181,103 +189,85 @@ export default function Profile() {
     };
 
 
-    // fetch user dat from supabse a tbale named users_details 
-    // with records interests, gender and contact
-
     return (
         <ImageBackground source={{ uri: 'https://i.pinimg.com/474x/72/2b/1a/722b1a5309a144eeaf83c414693450f6.jpg' }}
             resizeMode="cover" style={styles.backgroundImage}>
             <View style={styles.overlay} />
-            <View style={styles.container}>
-
-                {/* Profile Section */}
-                <View style={styles.profileContainer}>
-                    <View style={styles.profileWrapper}>
-                        <Image source={profilePicture ? { uri: profilePicture } : avatar} style={styles.profileImage} />
-                        <TouchableOpacity style={styles.cameraButton} onPress={onSelectImage}>
-                            <Ionicons name="camera-outline" size={30} color={"#fff"} />
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={styles.username}>{username}</Text>
+            {loading ? (
+                <View style={styles.loaderContainer}>
+                    <Text style={styles.loadingText}>Loading...</Text>
                 </View>
+            ) : (
 
-                {/* User Info Section */}
-                <View style={styles.bioContainer}>
-                    <View style={{ justifyContent: 'center', alignItems: "center" }}>
-                        <Text style={styles.bioTitle}>About</Text>
+                <View style={styles.container}>
+
+                    {/* Profile Section */}
+                    <View style={styles.profileContainer}>
+                        <View style={styles.profileWrapper}>
+                            <Image source={profilePicture ? { uri: profilePicture } : avatar} style={styles.profileImage} />
+                            <TouchableOpacity style={styles.cameraButton} onPress={onSelectImage}>
+                                <Ionicons name="camera-outline" size={30} color={"#fff"} />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.username}>{username}</Text>
                     </View>
-                    <Text style={styles.bioText}><Text style={styles.label}>Email:</Text> {email}</Text>
-                    <Text style={styles.bioText}><Text style={styles.label}>Location:</Text> {location}</Text>
-                    <Text style={styles.bioText}><Text style={styles.label}>Contact:</Text> {contact}</Text>
 
-                </View>
+                    {/* User Info Section */}
+                    <View style={styles.bioContainer}>
+                        <View style={{ justifyContent: 'center', alignItems: "center" }}>
+                            <Text style={styles.bioTitle}>About</Text>
+                        </View>
+                        <Text style={styles.bioText}><Text style={styles.label}>Email:</Text> {email}</Text>
+                        <Text style={styles.bioText}><Text style={styles.label}>Location:</Text> {location}</Text>
+                        <Text style={styles.bioText}><Text style={styles.label}>Contact:</Text> {contact}</Text>
 
-                <View style={styles.updateView}>
-                    <Modal transparent={true} visible={modalVisible}>
-                        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                            <View style={styles.modalOverlay}>
-                                <View style={styles.modalContainer}>
-                                    <Text style={styles.modalTitle}>Enter New</Text>
-                                    <TextInput
-                                        secureTextEntry
-                                        placeholder="New password"
-                                        value={newPassword}
-                                        onChangeText={setNewPassword}
-                                        style={styles.input}
-                                    />
-                                    <TouchableOpacity style={styles.modalButton} onPress={changePassword}>
-                                        <Text style={styles.modalButtonText}>Submit</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                                        <Text style={styles.cancelButtonText}>Cancel</Text>
-                                    </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.updateView}>
+                        <Modal transparent={true} visible={modalVisible}>
+                            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                                <View style={styles.modalOverlay}>
+                                    <View style={styles.modalContainer}>
+                                        <Text style={styles.modalTitle}>Enter New</Text>
+                                        <TextInput
+                                            secureTextEntry
+                                            placeholder="New password"
+                                            value={newPassword}
+                                            onChangeText={setNewPassword}
+                                            style={styles.input}
+                                        />
+                                        <TouchableOpacity style={styles.modalButton} onPress={changePassword}>
+                                            <Text style={styles.modalButtonText}>Submit</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </Modal>
-                    <TouchableOpacity onPress={() => { navigation.navigate('UpdateProfile') }}>
-                        <Text style={styles.update}>Update Info</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Buttons Section */}
-
-                {/* Error Message */}
-                {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-                <View>
-                    <View style={styles.buttonWrapper}>
-                        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
-                            <Text style={styles.buttonText}>Change Password</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-                            <Text style={styles.buttonText}>Logout</Text>
+                            </TouchableWithoutFeedback>
+                        </Modal>
+                        <TouchableOpacity onPress={() => { navigation.navigate('UpdateProfile') }}>
+                            <Text style={styles.update}>Update Info</Text>
                         </TouchableOpacity>
                     </View>
-                    <Modal transparent={true} visible={modalVisible}>
-                        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                            <View style={styles.modalOverlay}>
-                                <View style={styles.modalContainer}>
-                                    <Text style={styles.modalTitle}>Enter New Password</Text>
-                                    <TextInput
-                                        secureTextEntry
-                                        placeholder="New password"
-                                        value={newPassword}
-                                        onChangeText={setNewPassword}
-                                        style={styles.input}
-                                    />
-                                    <TouchableOpacity style={styles.modalButton} onPress={changePassword}>
-                                        <Text style={styles.modalButtonText}>Submit</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                                        <Text style={styles.cancelButtonText}>Cancel</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </Modal>
 
+                    {/* Buttons Section */}
+
+                    {/* Error Message */}
+                    {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+                    <View>
+                        <View style={styles.buttonWrapper}>
+                            <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+                                <Text style={styles.buttonText}>Change Password</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                                <Text style={styles.buttonText}>Logout</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                    </View>
                 </View>
-            </View>
+            )}
         </ImageBackground>
     );
 };
@@ -431,5 +421,15 @@ const styles = StyleSheet.create({
     cancelButtonText: {
         color: "#007bff",
         fontWeight: "bold",
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: "#fff",
     },
 });
