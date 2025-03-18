@@ -30,7 +30,10 @@ const CategoryScreen = () => {
             <Text style={styles.header}>Categories</Text>
 
             {loading ? (
-                <ActivityIndicator size="large" color="#000" />
+                // <ActivityIndicator size="large" color="#000" />
+                <View style={styles.loaderContainer}>
+                    <Text style={styles.loadingText}> Loading categories...</Text>
+                </View>
             ) : (
                 <FlatList
                     data={categories}
@@ -89,6 +92,16 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginTop: 5,
         textAlign: "center",
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: "#777",
     },
 });
 

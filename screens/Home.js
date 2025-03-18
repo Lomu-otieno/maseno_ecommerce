@@ -1,32 +1,45 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+    View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Animated
+} from "react-native";
 import { supabase } from "../supabase";
 import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
-    const [products, setProducts] = useState([])
+    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const fadeAnim = new Animated.Value(0); // Animation for fade-in
 
-
-    const fetchProducts = async () => {
-        setLoading(true);
-        const { data, error } = await supabase.from('products').select('*');
-        if (error) {
-            // console.log('Error fetching the products:', error)
-        } else {
-            setProducts(data);
-            // console.log('fetched data', data);
-        }
-        setLoading(false);
-    };
     useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            const { data, error } = await supabase.from("products").select("*");
+            if (error) {
+                console.error("Error fetching products:", error);
+            } else {
+                setProducts(data);
+            }
+            setLoading(false);
+        };
+
         fetchProducts();
     }, []);
+
+    useEffect(() => {
+        if (!loading) {
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500, // Smooth fade-in effect
+                useNativeDriver: false, // Ensure it works properly
+            }).start();
+        }
+    }, [loading]); // Trigger only when loading is false
+
     return (
         <>
-            <StatusBar style="dark" />1
+            <StatusBar style="dark" />
             <View style={styles.container}>
                 {/* Header */}
                 <Text style={styles.header}>Maseno.Mall</Text>
@@ -34,40 +47,36 @@ const HomeScreen = () => {
                 {/* Search Bar */}
                 <TextInput placeholder="Search for products..." style={styles.searchBar} />
 
-                {/* Categories */}
-                <FlatList
-                    horizontal
-                    // data={categories}
-                    keyExtractor={(item) => item}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.categoryButton}>
-                            <Text style={styles.categoryText}>{item}</Text>
-                        </TouchableOpacity>
-                    )}
-                    showsHorizontalScrollIndicator={false}
-                />
-
                 {/* Featured Products */}
                 <Text style={styles.sectionTitle}>Featured Products</Text>
+
+                {/* Show loading animation */}
                 {loading ? (
-                    <Text>Loading products...</Text>
+                    <View style={styles.loaderContainer}>
+                        <ActivityIndicator size="large" color="#3498db" />
+                        <Text style={styles.loadingText}>Loading products...</Text>
+                    </View>
                 ) : (
-                    <FlatList
-                        showsVerticalScrollIndicator={false}
-                        data={products}
-                        keyExtractor={(item) => item.id.toString()}
-                        numColumns={2}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate("ProductDetails", { productId: item.id })}
-                            >
-                                <View style={styles.productCard}>
-                                    <Image source={{ uri: item.image_url }} style={styles.productImage} />
-                                    <Text style={styles.productName}>{item.name}</Text>
-                                    <Text style={styles.productPrice}>Khs. {item.price}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    />
+                    <Animated.View style={{ opacity: fadeAnim }}>
+                        <FlatList
+                            showsVerticalScrollIndicator={false}
+                            data={products}
+                            keyExtractor={(item) => item.id.toString()}
+                            numColumns={2}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.touchable}
+                                    onPress={() => navigation.navigate("ProductDetails", { productId: item.id })}
+                                >
+                                    <View style={styles.productCard}>
+                                        <Image source={{ uri: item.image_url }} style={styles.productImage} />
+                                        <Text style={styles.productName}>{item.name}</Text>
+                                        <Text style={styles.productPrice}>Ksh. {item.price}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </Animated.View>
                 )}
             </View>
         </>
@@ -94,19 +103,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 20,
     },
-    categoryButton: {
-        marginRight: 10,
-        height: 50,
-        padding: 10,
-        backgroundColor: "#ddd",
-        borderBottomRightRadius: 30,
-        borderBottomLeftRadius: 30,
-        borderRadius: 10,
-    },
-    categoryText: {
-        fontSize: 14,
-        fontWeight: "bold",
-    },
     sectionTitle: {
         marginTop: 20,
         fontSize: 22,
@@ -129,14 +125,12 @@ const styles = StyleSheet.create({
         margin: 5,
         minWidth: 160,
     },
-
     productImage: {
         width: "100%",
         height: 140,
         borderRadius: 10,
         resizeMode: "cover",
     },
-
     productName: {
         fontSize: 14,
         fontWeight: "bold",
@@ -144,20 +138,27 @@ const styles = StyleSheet.create({
         color: "#333",
         marginTop: 8,
     },
-
     productPrice: {
         fontSize: 13,
         fontWeight: "600",
         color: "#777",
         marginTop: 4,
     },
-
     touchable: {
         flex: 1,
         borderRadius: 15,
         overflow: "hidden",
     },
-
+    loaderContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: "#777",
+    },
 });
 
 export default HomeScreen;
