@@ -35,24 +35,20 @@ const UpdateProfile = () => {
 
     // Fetch user details from Supabase
     const fetchUserDetails = async (email) => {
-        try {
-            const { data, error } = await supabase
-                .from('users_details')
-                .select('location,contact')
-                .eq('email', email)
-                .maybeSingle();
+        const { data, error } = await supabase
+            .from('users_details')
+            .select('location,contact')
+            .eq('email', email)
+            .maybeSingle();
 
-            if (error) throw error;
+        if (error) throw error;
 
-            if (data) {
-                setLocation(data.location || '');
-                setContact(data.contact || '');
-            }
-        } catch (error) {
-            Alert.alert('Error', error.message);
-        } finally {
-            setLoading(false); // Stop loading
+        if (data) {
+            setLocation(data.location || '');
+            setContact(data.contact || '');
+            setLoading(false);
         }
+
     };
 
     // Update user details in Supabase

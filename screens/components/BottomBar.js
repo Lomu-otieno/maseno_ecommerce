@@ -6,8 +6,6 @@ import { supabase } from "../../supabase";
 const BottomBar = ({ productId }) => {
     const navigation = useNavigation();
     const addToCart = async (productId, quantity) => {
-        console.log("Adding to cart - Product ID:", productId); // Debugging log
-
         if (!productId) {
             console.error("Error: Product ID is undefined!");
             return;

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TextInput, StyleSheet, ImageBackground, Alert, TouchableOpacity } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import { useState } from "react";
-import { supabase } from '../supabase';  // ✅ Ensure this import is correct
+import { supabase } from '../supabase';
 
 const image = { uri: 'https://i.pinimg.com/474x/1d/5c/9a/1d5c9a929b2d8b98d62ab95f0818cfb2.jpg' };
 

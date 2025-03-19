@@ -43,8 +43,8 @@ const ProductScreen = () => {
                 <FlatList
                     data={products}
                     keyExtractor={(item) => item.id.toString()}
-                    numColumns={2} // Set two items per row
-                    columnWrapperStyle={styles.row} // Ensures proper spacing
+                    numColumns={2}
+                    columnWrapperStyle={styles.row}
                     renderItem={({ item }) => (
 
                         <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { productId: item.id })} style={styles.productCard}>

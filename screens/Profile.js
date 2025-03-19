@@ -89,16 +89,6 @@ export default function Profile() {
 
         if (!result.canceled) {
             const imgUri = result.assets[0].uri;
-            // console.log('📸 Selected Image URI:', imgUri);
-
-            // Test network
-            try {
-                const testResponse = await fetch('https://www.google.com');
-                // console.log('✅ Network Test Successful:', testResponse.status);
-            } catch (error) {
-                // console.error('❌ Network error:', error);
-                return;
-            }
 
             // Upload the image
             const imageUrl = await uploadImage(imgUri, user.email);
@@ -124,53 +114,48 @@ export default function Profile() {
             Alert.alert("Failed", error.message);
         } else {
             Alert.alert("Success", "Password changed successfully!");
-            setModalVisible(false); // Close modal after success
-            setNewPassword(''); // Reset input
+            setModalVisible(false);
+            setNewPassword('');
         }
     };
 
     useEffect(() => {
         const fetchUserProfile = async () => {
-            setLoading(true); // Start loading
+            setLoading(true);
 
             const { data: { user }, error: authError } = await supabase.auth.getUser();
             if (authError || !user) {
                 Alert.alert("Error", "User not authenticated");
-                setLoading(false); // Stop loading in case of an error
+                setLoading(false);
                 return;
             }
 
             setUsername(user.user_metadata?.username || "No Username");
             setEmail(user.email || "No Email");
 
-            try {
-                // Fetch user details excluding profile picture
-                const { data, error } = await supabase
-                    .from('users_details')
-                    .select('location, contact, profile_picture')
-                    .eq('email', user.email)
-                    .single();
+            // Fetch user details excluding profile picture
+            const { data, error } = await supabase
+                .from('users_details')
+                .select('location, contact, profile_picture')
+                .eq('email', user.email)
+                .single();
 
-                if (error) throw error;
+            if (error) throw error;
 
-                setLocation(data?.location || "Not specified");
-                setContact(data?.contact || "No contact info");
+            setLocation(data?.location || "Not specified");
+            setContact(data?.contact || "No contact info");
 
-                // Fetch the latest profile picture from storage
-                const { data: files, error: storageError } = await supabase
-                    .storage
-                    .from('profilepictures')
-                    .list(user.email + "/", { limit: 1, sortBy: { column: "created_at", order: "desc" } });
+            // Fetch the latest profile picture from storage
+            const { data: files, error: storageError } = await supabase
+                .storage
+                .from('profilepictures')
+                .list(user.email + "/", { limit: 1, sortBy: { column: "created_at", order: "desc" } });
 
-                if (!storageError && files && files.length > 0) {
-                    const latestImagePath = user.email + "/" + files[0].name;
-                    const { data: imageUrl } = supabase.storage.from('profile_pictures').getPublicUrl(latestImagePath);
-                    setProfilePicture(imageUrl.publicUrl);
-                }
-            } catch (error) {
-                Alert.alert("Error", error.message);
-            } finally {
-                setLoading(false); // Ensure loading stops regardless of success or failure
+            if (!storageError && files && files.length > 0) {
+                const latestImagePath = user.email + "/" + files[0].name;
+                const { data: imageUrl } = supabase.storage.from('profile_pictures').getPublicUrl(latestImagePath);
+                setProfilePicture(imageUrl.publicUrl);
+                setLoading(false);
             }
         };
 
@@ -179,13 +164,10 @@ export default function Profile() {
 
 
     const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-            navigation.replace("Login"); // Redirect to login screen after logout
-        } catch (error) {
-            // console.error("Logout Error:", error.message);
-        }
+
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        navigation.replace("Login");
     };
 
 
@@ -279,7 +261,7 @@ const styles = StyleSheet.create({
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Dim effect for better readability
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
     container: {
         flex: 1,
@@ -373,7 +355,7 @@ const styles = StyleSheet.create({
         flex: 0.99,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
         marginTop: 10,
     },
     modalContainer: {
@@ -386,7 +368,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.25,
         shadowRadius: 10,
-        elevation: 10, // Android shadow
+        elevation: 10,
     },
     modalTitle: {
         fontSize: 20,

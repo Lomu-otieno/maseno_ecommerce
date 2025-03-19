@@ -23,7 +23,7 @@ const SignupScreen = ({ navigation }) => {
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
-                options: { data: { username } } // Save username in user metadata
+                options: { data: { username } }
             });
 
             if (error) throw error;

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, Button, ActivityIndicator } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BottomBar from "./components/BottomBar";
-import { supabase } from "../supabase"; // Import your Supabase client
+import { supabase } from "../supabase";
 
 const ProductDetails = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { productId } = route.params || {}; // Handle missing params
+    const { productId } = route.params || {};
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -28,7 +28,7 @@ const ProductDetails = () => {
                 .from("products")
                 .select("id, name, price, description, image_url")
                 .eq("id", productId)
-                .single(); // Fetch a single product
+                .single();
 
             if (error) throw error;
 

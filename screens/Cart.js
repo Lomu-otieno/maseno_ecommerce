@@ -43,42 +43,34 @@ const CartScreen = () => {
 
 
     const fetchCartItems = async () => {
-        try {
-            if (!userEmail) return;
-            setLoading(true);
+        if (!userEmail) return;
+        setLoading(true);
 
-            const { data, error } = await supabase
-                .from("cart")
-                .select(`
+        const { data, error } = await supabase
+            .from("cart")
+            .select(`
                     id, 
                     productId, 
                     quantity, 
                     products (name, price)
                 `)
-                .eq("email", userEmail);
+            .eq("email", userEmail);
 
-            if (error) throw error;
+        if (error) throw error;
 
-            setCartItems(data);
-            const total = data.reduce((sum, item) => sum + item.quantity * item.products.price, 0);
-            setTotalCost(total);
-        } catch (error) {
-            console.error("Error fetching cart items:", error.message);
-        } finally {
-            setLoading(false);
-        }
+        setCartItems(data);
+        const total = data.reduce((sum, item) => sum + item.quantity * item.products.price, 0);
+        setTotalCost(total);
+        setLoading(false);
+
     };
 
     const removeFromCart = async (id) => {
-        try {
-            const { data, error } = await supabase.from("cart").delete().eq("id", id).select();
 
-            // Update UI by removing item from state
-            setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-            fetchCartItems();
-        } catch (error) {
-            console.error("Unexpected error:", error);
-        }
+        const { data, error } = await supabase.from("cart").delete().eq("id", id).select();
+        // Update UI by removing item from state
+        setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+        fetchCartItems();
     };
 
 
@@ -100,7 +92,7 @@ const CartScreen = () => {
             .update({ quantity: newQuantity })
             .eq("id", id)
             .eq("email", userEmail)
-            .neq("quantity", newQuantity) // Force update only if quantity is different
+            .neq("quantity", newQuantity)
             .select();
         fetchCartItems(); // Refresh UI with updated data
     };
