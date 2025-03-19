@@ -3,8 +3,9 @@ import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react
 import { useRoute } from "@react-navigation/native";
 import { supabase } from "../supabase";
 import { useNavigation } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-
+const Tab = createBottomTabNavigator();
 
 const ProductScreen = () => {
     const navigation = useNavigation();

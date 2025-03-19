@@ -44,7 +44,7 @@ const ProductDetails = () => {
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="blue" />
-                <Text>:Loading...</Text>
+                <Text>Loading...</Text>
             </View>
         );
     }

@@ -9,8 +9,10 @@ import { useNavigation } from "@react-navigation/native";
 const HomeScreen = () => {
     const navigation = useNavigation();
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
-    const fadeAnim = new Animated.Value(0); // Animation for fade-in
+    const fadeAnim = new Animated.Value(0);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -20,6 +22,7 @@ const HomeScreen = () => {
                 console.error("Error fetching products:", error);
             } else {
                 setProducts(data);
+                setFilteredProducts(data);
             }
             setLoading(false);
         };
@@ -28,14 +31,25 @@ const HomeScreen = () => {
     }, []);
 
     useEffect(() => {
+        if (searchQuery.trim() === "") {
+            setFilteredProducts(products);
+        } else {
+            const filtered = products.filter((item) =>
+                item.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredProducts(filtered);
+        }
+    }, [searchQuery, products]);
+
+    useEffect(() => {
         if (!loading) {
             Animated.timing(fadeAnim, {
                 toValue: 1,
-                duration: 500, // Smooth fade-in effect
-                useNativeDriver: false, // Ensure it works properly
+                duration: 500,
+                useNativeDriver: false,
             }).start();
         }
-    }, [loading]); // Trigger only when loading is false
+    }, [loading]);
 
     return (
         <>
@@ -45,12 +59,16 @@ const HomeScreen = () => {
                 <Text style={styles.header}>Maseno.Mall</Text>
 
                 {/* Search Bar */}
-                <TextInput placeholder="Search for products..." style={styles.searchBar} />
+                <TextInput
+                    placeholder="Search for products..."
+                    style={styles.searchBar}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
 
                 {/* Featured Products */}
                 <Text style={styles.sectionTitle}>Featured Products</Text>
 
-                {/* Show loading animation */}
                 {loading ? (
                     <View style={styles.loaderContainer}>
                         <ActivityIndicator size="large" color="#3498db" />
@@ -60,7 +78,7 @@ const HomeScreen = () => {
                     <Animated.View style={{ opacity: fadeAnim }}>
                         <FlatList
                             showsVerticalScrollIndicator={false}
-                            data={products}
+                            data={filteredProducts}
                             keyExtractor={(item) => item.id.toString()}
                             numColumns={2}
                             renderItem={({ item }) => (
@@ -76,6 +94,9 @@ const HomeScreen = () => {
                                 </TouchableOpacity>
                             )}
                         />
+                        {filteredProducts.length === 0 && (
+                            <Text style={styles.noResultsText}>No matching products found.</Text>
+                        )}
                     </Animated.View>
                 )}
             </View>
@@ -158,6 +179,12 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 16,
         color: "#777",
+    },
+    noResultsText: {
+        textAlign: "center",
+        fontSize: 16,
+        marginTop: 20,
+        color: "#888",
     },
 });
 

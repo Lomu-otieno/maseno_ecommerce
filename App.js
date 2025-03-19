@@ -10,7 +10,7 @@ import { navigationRef } from "./RootNavigation";
 import SignupScreen from "./screens/Signup";
 import LoginScreen from "./screens/Login";
 import ForgotPassScreen from "./screens/ForgotPassScreen";
-import HomeScreen from "./screens/Home";
+import HomeScreen from "./screens/HomeScreen";
 import Chat from "./screens/Chat";
 import CartScreen from "./screens/Cart";
 import Category from "./screens/Category";
