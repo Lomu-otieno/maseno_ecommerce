@@ -26,7 +26,6 @@ const BottomBar = ({ productId }) => {
             return;
         }
 
-        console.log("User Email:", userEmail); // Debugging log
 
         // Insert item into the cart with the retrieved email
         const { data, error } = await supabase

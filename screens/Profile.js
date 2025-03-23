@@ -75,7 +75,6 @@ export default function Profile() {
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError || !sessionData?.session?.user) {
-            // console.error('User not found:', sessionError?.message);
             return;
         }
 
@@ -153,7 +152,7 @@ export default function Profile() {
 
             if (!storageError && files && files.length > 0) {
                 const latestImagePath = user.email + "/" + files[0].name;
-                const { data: imageUrl } = supabase.storage.from('profile_pictures').getPublicUrl(latestImagePath);
+                const { data: imageUrl } = supabase.storage.from('profilepictures').getPublicUrl(latestImagePath);
                 setProfilePicture(imageUrl.publicUrl);
                 setLoading(false);
             }

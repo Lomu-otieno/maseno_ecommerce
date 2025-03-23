@@ -14,6 +14,8 @@ const HomeScreen = () => {
     const [loading, setLoading] = useState(true);
     const fadeAnim = new Animated.Value(0);
 
+
+
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -27,6 +29,7 @@ const HomeScreen = () => {
             setLoading(false);
         };
 
+
         fetchProducts();
     }, []);
 
@@ -38,6 +41,7 @@ const HomeScreen = () => {
                 item.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
             setFilteredProducts(filtered);
+
         }
     }, [searchQuery, products]);
 
