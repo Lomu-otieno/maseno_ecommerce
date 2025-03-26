@@ -19,6 +19,8 @@ import UpdateProfile from "./screens/UpdateProfile";
 import ProductDetails from "./screens/ProductDetails";
 import ProductScreen from "./screens/ProductScreen";
 import { StatusBar } from "expo-status-bar";
+import OrderScreen from "./screens/OrderScreen";
+import OrderItemsScreen from "./screens/OrderItemsScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -72,6 +74,8 @@ export default function App() {
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="ProductDetails" component={ProductDetails} />
           <Stack.Screen name="ProductScreen" component={ProductScreen} />
+          <Stack.Screen name="OrderScreen" component={OrderScreen} />
+          <Stack.Screen name="OrderItemsScreen" component={OrderItemsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

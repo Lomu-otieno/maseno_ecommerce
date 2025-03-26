@@ -4,10 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../supabase';
-import { decode } from 'base-64';
-import { FileObject } from '@supabase/storage-js'
-
+import { supabase } from '../supabase';
 
 export default function Profile() {
     const avatar = { uri: ('https://i.pinimg.com/236x/41/76/b9/4176b9b864c1947320764e82477c168f.jpg') }
@@ -92,7 +89,6 @@ export default function Profile() {
             // Upload the image
             const imageUrl = await uploadImage(imgUri, user.email);
             const response = await fetch(imgUri);
-            // console.log('🔍 Fetch response:', response);
 
             if (imageUrl) {
                 setProfilePicture(imageUrl);
@@ -209,7 +205,7 @@ export default function Profile() {
                             <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
                                 <View style={styles.modalOverlay}>
                                     <View style={styles.modalContainer}>
-                                        <Text style={styles.modalTitle}>Enter New</Text>
+                                        <Text style={styles.modalTitle}>Enter New Password</Text>
                                         <TextInput
                                             secureTextEntry
                                             placeholder="New password"
@@ -231,6 +227,10 @@ export default function Profile() {
                             <Text style={styles.update}>Update Info</Text>
                         </TouchableOpacity>
                     </View>
+                    <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate("OrderScreen")}
+                    >
+                        <Text style={styles.checkoutText}>View Orders</Text>
+                    </TouchableOpacity>
 
                     {/* Buttons Section */}
 
@@ -327,8 +327,11 @@ const styles = StyleSheet.create({
     update: {
         fontSize: 20,
         fontWeight: "bold",
+        backgroundColor: "#007bff",
         color: "#fff",
         textAlign: "center",
+        padding: 5,
+        borderRadius: 2,
     },
     buttonWrapper: {
         flexDirection: "row",
@@ -413,4 +416,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#fff",
     },
+    checkoutButton: {
+        backgroundColor: "#007bff",
+        padding: 15,
+        borderRadius: 5,
+        alignItems: "center",
+        width: "100%"
+    },
+    checkoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
 });

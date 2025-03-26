@@ -4,8 +4,12 @@ import {
 } from "react-native";
 import { supabase } from "../supabase";
 import { Ionicons } from "@expo/vector-icons";
+import { Navigation } from "react-native-navigation";
+import { useNavigation } from "@react-navigation/native";
 
 const CartScreen = () => {
+
+    const navigation = useNavigation();
     const [cartItems, setCartItems] = useState([]);
     const [userEmail, setUserEmail] = useState(null);
     const [totalCost, setTotalCost] = useState(0);
@@ -49,11 +53,11 @@ const CartScreen = () => {
         const { data, error } = await supabase
             .from("cart")
             .select(`
-                    id, 
-                    productId, 
-                    quantity, 
-                    products (name, price)
-                `)
+            id, 
+            productId, 
+            quantity, 
+            products (name, price)
+            `)
             .eq("email", userEmail);
 
         if (error) throw error;
@@ -82,7 +86,7 @@ const CartScreen = () => {
             .eq("id", id)
             .eq("email", userEmail);
         if (!existingData || existingData.length === 0) {
-            console.error("Item not found in the database!");
+            // console.error("Item not found in the database!");
             return;
         }
         const newQuantity = existingData[0].quantity + 1;
@@ -105,7 +109,7 @@ const CartScreen = () => {
     const decreaseQuantity = async (id, currentQuantity) => {
 
         if (currentQuantity <= 1) {
-            console.log("Quantity is 1, removing item from cart instead.");
+
             await removeFromCart(id);
             return;
         }
@@ -162,7 +166,13 @@ const CartScreen = () => {
                 <Text style={styles.totalText}> Kshs. {totalCost.toFixed(2)}</Text>
             </View>
 
-            <TouchableOpacity style={styles.checkoutButton} onPress={() => alert("Proceeding to Checkout")}>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate("OrderScreen")}
+            >
+                <Text style={styles.checkoutText}>View Orders</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate("OrderItemsScreen", { cartItems: cartItems || [], totalCost: totalCost || 0 })}
+            >
                 <Text style={styles.checkoutText}>Checkout</Text>
             </TouchableOpacity>
         </View>

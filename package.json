@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~4.0.1",
     "@react-native-async-storage/async-storage": "^2.1.2",
+    "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.2.1",
     "@react-navigation/native": "^7.0.15",
     "@react-navigation/stack": "^7.1.2",
@@ -27,6 +28,7 @@
     "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "^2.24.0",
     "react-native-navigation": "^7.44.0",
+    "react-native-paper": "^5.13.1",
     "react-native-reanimated": "^3.17.1",
     "react-native-safe-area-context": "^5.3.0",
     "react-native-screens": "^4.9.1",

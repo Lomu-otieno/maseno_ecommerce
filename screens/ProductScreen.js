@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, padding: 10, backgroundColor: "#fff" },
     header: { fontSize: 24, fontWeight: "bold", marginBottom: 10, textAlign: "center", padding: 20 },
     noProducts: { textAlign: "center", marginTop: 20, fontSize: 16 },
-    row: { justifyContent: "space-between" }, // Ensures spacing between items
+    row: { justifyContent: "space-between" },
     productCard: {
         flex: 1,
         margin: 5,
